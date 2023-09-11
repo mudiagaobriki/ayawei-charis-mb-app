@@ -1,0 +1,16 @@
+export default {
+    Splash: "Splash",
+    Home: "Home",
+    NewTransaction: "NewTransaction",
+    Reports: "Reports",
+    PhoneSignup: "PhoneSignup",
+    OTPConfirmation: "OTPConfirmation",
+    CreatePin: "CreatePin",
+    BasicDetails: "BasicDetails",
+    Address: "Address",
+    Identification: "Identification",
+    AddCash: "AddCash",
+    Transfer: "Transfer",
+    SettlementAccount: "SettlementAccount",
+    TransactionHistory: "TransactionHistory",
+}
