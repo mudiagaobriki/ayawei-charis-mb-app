@@ -8,6 +8,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { persistStore } from "redux-persist";
 import Splash from "./src/screens/intro/splash";
 import AuthStack from "./src/navigation/AuthStack";
+import {PaperProvider} from "react-native-paper";
 
 export default function App() {
 
@@ -17,9 +18,11 @@ export default function App() {
     <>
       <Provider store={store}>
       <PersistGate persistor={persistor} >
+          <PaperProvider>
         {/*<BottomNavigation />*/}
           <AuthStack />
         <StatusBar style="auto" />
+          </PaperProvider>
       </PersistGate>
       </Provider>
     </>

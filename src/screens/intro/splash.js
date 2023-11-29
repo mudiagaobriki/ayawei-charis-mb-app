@@ -71,7 +71,7 @@ const Splash = () => {
 const _renderSkipButton = () => {
     return (
             <Text style={styles.skipBtnText}
-            onPress={() => navigation.navigate(NavigationNames.PhoneSignup)}
+            onPress={() => navigation.navigate(NavigationNames.Welcome)}
             >Skip</Text>
     );
 };
@@ -101,7 +101,7 @@ const _renderDoneButton = () => {
     // navigation or simply by controlling state
     // navigation.navigate(NavigationNames.Home);
     setShowRealApp(true);
-    navigation.navigate(NavigationNames.PhoneSignup);
+    navigation.navigate(NavigationNames.Welcome);
   }
 
 

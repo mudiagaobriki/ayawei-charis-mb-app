@@ -7,9 +7,9 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/icon-full.png",
+      "image": "./assets/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#492FAD"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -19,7 +19,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.kingmudi.Hare"
@@ -29,7 +29,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "9eecb2ce-96e9-4b1d-a0d6-e877e041c83c"
+        "projectId": "fdbd37b4-57f8-4539-8916-40c8461771ec"
       }
     }
   }

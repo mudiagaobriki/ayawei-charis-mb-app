@@ -135,7 +135,7 @@ const Identification = () => {
 				{/* </View>*/}
 				<TouchableOpacity onPress={onSave} style={{width: width - 100,
 					alignSelf: 'center', height: 55, backgroundColor: 'black',
-					 marginTop: 250, justifyContent: 'center', alignItems: 'center', borderRadius: 10}}>
+					 marginTop: 150, justifyContent: 'center', alignItems: 'center', borderRadius: 10}}>
 					<Text style={{color: 'white', fontWeight: '700'}}>Done</Text>
 				</TouchableOpacity>
 			</View>

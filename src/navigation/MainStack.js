@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NavigationNames from './NavigationNames';
 import Splash from '../screens/intro/splash';
 import PhoneSignup from '../screens/authentication/PhoneSignup';
-import OTPConfirmation from "../screens/authentication/OTPConfirmation";
+import EmailOTPConfirmation from "../screens/authentication/EmailOTPConfirmation";
 import CreatePin from "../screens/authentication/CreatePin";
 import Home from "../screens/Home";
 import BasicDetails from "../screens/profile/BasicDetails";
@@ -41,7 +41,7 @@ function MainStack() {
         }} />
         <Stack.Screen
         name={NavigationNames.OTPConfirmation}
-        component={OTPConfirmation}
+        component={EmailOTPConfirmation}
         options={{
             headerShown: true,
             headerTitle: '',

@@ -4,7 +4,7 @@ useWindowDimensions, Platform, ActivityIndicator, Alert } from 'react-native';
 import { Button } from 'react-native-paper';
 import PhoneInput from 'react-native-phone-number-input';
 import Icon from '@expo/vector-icons/MaterialCommunityIcons';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import NavigationNames from "../../navigation/NavigationNames";
 import {sendOTP} from "../../services/profile/profileService";
 import {useDispatch} from "react-redux";
@@ -14,32 +14,39 @@ import {
     updateSplashShown,
     updateUsername
 } from "../../redux/features/user/userSlice";
-import {getProfile} from "../../services/auth/authService";
+import {editProfile, editUser, getProfile} from "../../services/auth/authService";
 import {setSignIn} from "../../redux/features/auth/authSlice";
 // import NavigationNames from '../../navigation/NavigationNames';
 // import { addPerson, fetchPerson, requestOTP, verifyOTP, doUserSignUp } from '../../utils/users'
 // console.log({firebase})
 import {colors} from "../../assets/colors";
+import PrimaryButton from "../../components/buttons/PrimaryButton";
+import Heading from "../../components/text/Heading";
 
 // console.log({useKeyboard})
 
 const PhoneSignup = () => {
-    const [checked, setChecked] = React.useState(false);
     const [value, setValue] = useState("");
-    const [email, setEmail] = useState("");
     const [formattedValue, setFormattedValue] = useState("");
     const [loading, setLoading] = useState(false)
+    const [isFieldFocused, setIsFieldFocused] = useState(true)
 
-    const {height, width} = useWindowDimensions()
     const navigation = useNavigation()
     const phoneInput = useRef(null);
     const dispatch = useDispatch();
+    const route = useRoute();
+
+    const {id, user, email, } = route?.params ?? {};
+
 
     useEffect(() => {
         dispatch(updateSplashShown(true))
     },[])
 
     const handleNext = async () => {
+        // navigation.navigate(NavigationNames.EmailOTPConfirmation)
+
+        // uncomment this code to apply the actual logic
         setLoading(true)
 
         let callingCode = phoneInput?.current?.getCallingCode();
@@ -50,26 +57,13 @@ const PhoneSignup = () => {
         let fullNumber = "+" + callingCode + formattedValue
 
         console.log("Full number: ", fullNumber)
-        //
-        let response = await sendOTP(fullNumber)
-        response = response.data
-        //
-        console.log("Response data: ", response)
 
-        // alert(response)
+        let result = await editUser(id, {phone: fullNumber});
 
-        if (response?.loginToken){
-            dispatch(updateUsername(fullNumber))
+        // let result2 = await editProfile(email, {accountNumber: formattedValue})
 
-            dispatch(setSignIn({ username: response?.username, id: response?._id, token: response?.loginToken}))
-
-            const profileData = await getProfile(response?._id)
-
-            const status = profileData?.status
-
-            dispatch(updateProfileStatus(''))
-
-            navigation.navigate(NavigationNames.OTPConfirmation, { phoneNumber: fullNumber})
+        if (result?.status === "success"){
+            navigation.navigate(NavigationNames.EmailOTPConfirmation, {id, user, email, phone: formattedValue})
         }
 
         setLoading(false)
@@ -78,25 +72,15 @@ const PhoneSignup = () => {
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer} style={styles.container}>
-            <Image style={styles.logo} source={require('../../assets/logo.png')} />
-            {/* <TextInput
-                style={[styles.textInput, {width: width - 80}]}
-                placeholder="Phone Number"
-                keyboardType='numeric'
-             />
-             <TextInput
-                style={[styles.textInput, {width: width - 80}]}
-                placeholder="Password/OTP"
-             /> */}
-             <Text style={styles.signupText}>Sign Up</Text>
-             {/* <TextInput
-                onChangeText={text => setEmail(text)}
-                placeholder='Email'
-                // keyboardType='email'
-                style={[styles.textInput,{width:width-80, height: 55, marginBottom: 30, backgroundColor: '#e0e0e0',}]}
-              /> */}
+            <Heading text='Mobile Number' mb={13} />
+            <Text style={styles.subText}>
+                Please enter your phone number. This
+                number would be used to receive
+                notifications from Charis App.
+            </Text>
              <PhoneInput
                 ref={phoneInput}
+                autoFocus
                 placeholder={'Mobile'}
                 keyboardType={'phone-pad'}
                 defaultCode="NG"
@@ -110,22 +94,9 @@ const PhoneSignup = () => {
                   }}
                 withDarkTheme
                 withShadow
-                // autoFocus
-                containerStyle={[
-                    {
-                        // width: dimensions.width - 60,
-                        backgroundColor: '#f0f0f0',
-                        height: 60,
-                        borderRadius: 10,
-                    },
-                ]}
-                textContainerStyle={{
-                    borderTopRightRadius: 10,
-                    borderBottomRightRadius: 10,
-                    backgroundColor: 'e0e0e0',
-                    height: 60,
-                }}
-                flagButtonStyle={{ paddingLeft: Platform.isPad ? 0 : 20 }}
+                containerStyle={styles.controlContainer}
+                textContainerStyle={styles.textContainer}
+                flagButtonStyle={{ paddingLeft: Platform.isPad ? 0 : 15 }}
                 textInputStyle={{ color: '#000000', height: 55 }}
                 codeTextStyle={{ padding: 0, margin: 0 }}
                 renderDropdownImage={<Icon name="chevron-down" size={25} color={'#e0e0e0'} />}
@@ -134,11 +105,7 @@ const PhoneSignup = () => {
                 textInputProps={{ maxLength: 12, selectionColor: '#000000' }}
             />
 
-            <Button disabled={loading} dark mode="contained" onPress={() => handleNext()}
-                buttonColor={colors.PRIMARY} contentStyle={[styles.button,{width: width - 80}]}
-                style={{marginTop: 50, borderRadius: 10}} labelStyle={styles.buttonLabel}>
-                {loading? "Busy...": 'Next'}
-             </Button>
+            <PrimaryButton text='Send Code' mt={97} onPress={handleNext} />
 
         </ScrollView>
     );
@@ -150,16 +117,17 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingTop: 100,
+        paddingHorizontal: 44,
     },
     scrollContainer: {
         alignItems: 'center',
         paddingTop: 50,
     },
-    logo: {
-        width: 200,
-        height: 120,
-        resizeMode: 'stretch',
-        marginBottom: 40,
+    subText: {
+        fontSize: 16,
+        color: colors.LIGHT_GRAY_1,
+        marginBottom: 50,
+        textAlign: 'center',
     },
     textInput: {
         // width: "90%",
@@ -170,29 +138,14 @@ const styles = StyleSheet.create({
         marginTop: 20,
         paddingHorizontal: 15,
     },
-    nextButton: {
-        backgroundColor: 'black',
-        height: 60,
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 50,
+    controlContainer: {
+        backgroundColor: '#f0f0f0',
+        height: 50,
+        borderRadius: 12,
     },
-    signupText: {
-        color: 'black',
-        fontSize: 18,
-        fontWeight: '600',
-        marginBottom: 60
-    },
-    nextText: {
-        color: 'white',
-        fontSize: 18,
-        fontWeight: '700',
-    },
-    button: {
-        height: 55,
-    },
-    buttonLabel: {
-        fontSize: 16,
+    textContainer: {
+        borderRadius: 15,
+        backgroundColor: 'e0e0e0',
+        height: 50,
     },
 })

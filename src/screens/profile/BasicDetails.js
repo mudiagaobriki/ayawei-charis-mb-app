@@ -18,6 +18,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {selectUserName} from "../../redux/features/auth/authSlice";
 import {getProfile, newProfile} from "../../services/auth/authService";
 import {updateProfileStatus} from "../../redux/features/user/userSlice";
+import {colors} from "../../assets/colors";
 // import {updateUser} from "../../utils/users";
 
 
@@ -100,8 +101,8 @@ const BasicDetails = () => {
 					 />
 				 </View>
 				<TouchableOpacity onPress={onSave} style={{width: width - 100,
-					alignSelf: 'center', height: 55, backgroundColor: 'black',
-					 marginTop: 250, justifyContent: 'center', alignItems: 'center', borderRadius: 10}}>
+					alignSelf: 'center', height: 55, backgroundColor: colors.PRIMARY,
+					 marginTop: 150, justifyContent: 'center', alignItems: 'center', borderRadius: 10}}>
 					<Text style={{color: 'white', fontWeight: '700'}}>Next</Text>
 				</TouchableOpacity>
 			</View>

@@ -12,25 +12,31 @@ import {
     Alert,
     Image
 } from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
 import NavigationNames from "../navigation/NavigationNames";
 import {useDispatch, useSelector} from "react-redux";
 import {selectUserName} from "../redux/features/auth/authSlice";
-import {getBankList, getProfile, newProfile, TransferMoney, VerifyAccount} from "../services/auth/authService";
+import {
+    getBankList,
+    getProfile,
+    getUserAccountDetails,
+    newProfile,
+    TransferMoney,
+    VerifyAccount
+} from "../services/auth/authService";
 import {updateProfileStatus} from "../redux/features/user/userSlice";
 import DropDownPicker from "react-native-dropdown-picker";
 import {colors} from "../assets/colors";
 import BalanceCard from "../components/BalanceCard";
+import Heading from "../components/text/Heading";
+import PrimaryButton from "../components/buttons/PrimaryButton";
 // import {updateUser} from "../../utils/users";
 
 
 const Transfer = () => {
 	const [bank, setBank] = useState('')
 	const [bankList, setBankList] = useState([])
-	const [accountNumber, setAccountNumber] = useState('')
-	const [accountName, setAccountName] = useState('')
-	const [description, setDescription] = useState('')
-	const [amount, setAmount] = useState('')
+
 	const [resolveStatus, setResolveStatus] = useState(false)
 	const [showBankPicker, setShowBankPicker] = useState(false)
 
@@ -44,12 +50,44 @@ const Transfer = () => {
     const [totalIncome, setTotalIncome] = useState(0)
     const [balance, setBalance] = useState(0)
 
+    const [userProfile, setUserProfile] = useState(null)
+    const [accountDetails, setAccountDetails] = useState(null)
+    const [accountNumber, setAccountNumber] = useState('')
+    const [accountName, setAccountName] = useState('')
+    const [description, setDescription] = useState('')
+    const [amount, setAmount] = useState('')
+    const [isAccountNumberFocused, setIsAccountNumberFocused] = useState(false)
+    const [isAccountNameFocused, setIsAccountNameFocused] = useState(false)
+    const [isAmountFocused, setIsAmountFocused] = useState(false)
+    const [isDescriptionFocused, setIsDescriptionFocused] = useState(false)
+    const [isBankFocused, setIsBankFocused] = useState(false)
+
     const navigation = useNavigation();
     const dispatch = useDispatch()
+    const focused = useIsFocused();
 
     const {username} = useSelector(state => state.auth);
     const {fieldsEnabled, accNo, accName, userBank} = route?.params ?? {fieldsEnabled: true,
         accNo: "", accName: "", userBank: ""};
+
+    useEffect(() => {
+        console.log("This ran -----------------------------------------------------------")
+        getProfile(user?.email)
+            .then(res => {
+                console.log("User Profile : ", {res})
+                setUserProfile(res)
+            })
+            .catch(err => console.log({err}))
+        console.log("Na here")
+    },[focused])
+
+    useEffect(() => {
+        getUserAccountDetails("+2348138885831")
+            .then(res2 => {
+                // console.log({res2})
+                setAccountDetails(res2)
+            })
+    },[focused])
 
 
     console.log({fieldsEnabled, accNo, accName, userBank})
@@ -73,9 +111,9 @@ const Transfer = () => {
             })
     },[])
 
-    const verifyAccount = async () => {
+    const verifyAccount = async (bnk, acc) => {
         // //console.log({bank, accountNumber})
-        const response = await VerifyAccount(bank,accountNumber)
+        const response = await VerifyAccount(bnk,acc)
         // //console.log({response})
 
         if (response.status === false){
@@ -98,120 +136,100 @@ const Transfer = () => {
     }
 
 	return (
-		<ScrollView contentContainerStyle={{paddingTop: 10, paddingHorizontal: 20,}}>
+		<ScrollView contentContainerStyle={{paddingTop: 10, paddingHorizontal: 40,}}>
 			<KeyboardAvoidingView behavior='position'>
 			{loading && <View style={{justifyContent: 'center', alignItems: 'center', marginTop: 40}}>
 				<ActivityIndicator size={30} color='green' />
 				</View>}
 			{!loading && <>
 			 <View style={{marginTop: 70}}>
-                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                     <Text style={{fontSize: 24, color: colors.PRIMARY, marginBottom: 50}}>Transfer</Text>
-                     <Image  source={require('../assets/logo.png')} style={{width: 130, height: 50, resizeMode:'stretch'}} />
-                 </View>
-                 <BalanceCard balance={balance} income={totalIncome} expenditure={totalExpenses} />
-
-                 {/*<Text style={styles.signupText}>Bank Transfer</Text>*/}
-				<View style={{marginTop: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-					<Text>Bank</Text>
-                    <View style={{ marginBottom: 10, minHeight: 30 }}>
-                        <DropDownPicker
-                            schema={{
-                                label: 'name', // required
-                                value: 'code', // required
-                                icon: 'icon',
-                                parent: 'parent',
-                                selectable: 'selectable',
-                                disabled: 'disabled',
-                            }}
-                            listMode="MODAL"
-                            disabled={fieldsEnabled === false}
-                            // listMode="SCROLLVIEW"
-                            placeholder="Select a bank"
-                            searchable={true}
-                            placeholderStyle={{ color: 'black' }}
-                            labelStyle={{ color: 'black' }}
-                            // textStyle={{color: 'black'}}
-                            modalTitle={'Account Type'}
-                            open={showBankPicker}
-                            value={bank}
-                            // value={currentGender}
-                            mode={'BADGE'}
-                            theme={'DARK'}
-                            items={bankList}
-                            setOpen={() => {
-                                setShowBankPicker(true);
-                            }}
-                            onClose={() => {
-                                setShowBankPicker(false);
-                            }}
-                            // @ts-ignore
-                            setValue={async (val: Function) => {
-                                const cc = val();
-                                // doHandleNext(cc);
-                                // //console.log('xsxs', cc);
-                                // let selectedCountry = countries?.find(el => el?.name === cc)
-                                // setStates(selectedCountry?.states)
-
-                                setBank(cc);
-                            }}
-                            style={[styles.textInput, { color:'black', width: width - 160, borderColor: 'transparent' }]}
-                            dropDownContainerStyle={{
-                                width: width - 160,
-                                backgroundColor: '#e0e0e0',
-                                zIndex: 5000,
-                                borderWidth: 0,
-                                borderColor: 'transparent',
-                                color: 'black'
-                            }}
-                        />
-                    </View>
-				</View>
-				<View style={{marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-					<Text>Account Number</Text>
-					<TextInput
-						style={[styles.textInput, {width: width - 160}]}
-						// placeholder="Last name"
-						onChangeText={text => setAccountNumber(text)}
-                        onEndEditing={verifyAccount}
-						value={accountNumber}
-                        editable={fieldsEnabled}
-						// keyboardType='text'
-					/>
-				</View>
-				 <View style={{marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-					 <Text>Account Name</Text>
-					 <TextInput
-						 style={[styles.textInput, {width: width - 160, color: 'black'}]}
-						 editable={false}
-						 onChangeText={text => setAccountName(text)}
-						 value={accountName}
-					 />
-				 </View>
-                 <View style={{marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-                     <Text>Amount</Text>
-                     <TextInput
-                         style={[styles.textInput, {width: width - 160, color: 'black'}]}
-                         editable={true}
-                         onChangeText={text => setAmount(text)}
-                         value={amount}
-                     />
-                 </View>
-                 {(fieldsEnabled == undefined) && <View style={{marginTop: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-                     <Text>Description</Text>
-                     <TextInput
-                         style={[styles.textInput, {width: width - 160, height: 100}]}
-                         editable={true}
-                         onChangeText={text => setDescription(text)}
-                         value={description}
-                         multiline
-                     />
+                 <Heading text='Send Money' size={24} mb={20} />
+                 {accountDetails && <View style={styles.balanceCardContainer}>
+                     <BalanceCard width="100%" balance={0} accountNumber={accountDetails?.account_number} />
                  </View>}
-				<TouchableOpacity onPress={onSave} style={{width: width - 100,
-					alignSelf: 'center', height: 55, backgroundColor: colors.PRIMARY,
-					 marginTop: 50, justifyContent: 'center', alignItems: 'center', borderRadius: 10}}>
-					<Text style={{color: 'white', fontWeight: '700'}}>Transfer</Text>
-				</TouchableOpacity>
+
+                 {/*<Text style={styles.inputLabel}>Account Number</Text>*/}
+                 <TextInput value={accountNumber} keyboardType='numeric'
+                            onChangeText={text => setAccountNumber(text)}
+                            placeholder='Beneficiary Account Number'
+                            placeholderTextColor={colors.BLACK_2}
+                            autoFocus
+                            onFocus={() => setIsAccountNumberFocused(true)}
+                            onBlur={() => setIsAccountNumberFocused(false)}
+                            style={[styles.textInput, {borderColor: isAccountNumberFocused? colors.INPUT_HIGHLIGHT_1: colors.INPUT_DISABLED}]}
+                 />
+                 <View style={styles.inputGroup}>
+                     {/*<Text style={styles.inputLabel}>State</Text>*/}
+                     <DropDownPicker
+                         schema={{
+                             label: 'name', // required
+                             value: 'code', // required
+                             icon: 'icon',
+                             parent: 'parent',
+                             selectable: 'selectable',
+                             disabled: 'disabled',
+                         }}
+                         listMode="MODAL"
+                         placeholder="Select Bank"
+                         searchable={true}
+                         placeholderStyle={{ color: colors.BLACK_2 }}
+                         labelStyle={{ color: 'black' }}
+                         modalTitle={'States'}
+                         open={showBankPicker}
+                         value={bank}
+                         mode={'BADGE'}
+                         theme={'LIGHT'}
+                         items={bankList}
+                         setOpen={() => {
+                             setShowBankPicker(true);
+                         }}
+                         onClose={() => {
+                             setIsBankFocused(false)
+                             setShowBankPicker(false);
+                         }}
+                         onPress={() => setIsBankFocused(true)}
+                         // @ts-ignore
+                         setValue={async (val: Function) => {
+                             const cc = val();
+                             console.log({cc})
+                             setBank(cc);
+                             await verifyAccount(cc, accountNumber)
+                         }}
+                         style={[styles.textInput, { backgroundColor: 'transparent', borderColor: isBankFocused? colors.INPUT_HIGHLIGHT_1: colors.INPUT_DISABLED }]}
+                         dropDownContainerStyle={styles.dropdownContainer}
+                     />
+                 </View>
+                 <TextInput value={accountName}
+                            onChangeText={text => setAccountName(text)}
+                            editable={false}
+                            placeholder='Account Name'
+                            placeholderTextColor={colors.BLACK_2}
+                            autoFocus
+                            onFocus={() => setIsAccountNameFocused(true)}
+                            onBlur={() => setIsAccountNameFocused(false)}
+                            style={[styles.textInput, {borderColor: isAccountNameFocused? colors.INPUT_HIGHLIGHT_1: colors.INPUT_DISABLED}]}
+                 />
+                 <TextInput value={amount} keyboardType='numeric'
+                            onChangeText={text => setAccountName(text)}
+                            editable={false}
+                            placeholder='Enter Amount'
+                            placeholderTextColor={colors.BLACK_2}
+                            autoFocus
+                            onFocus={() => setIsAmountFocused(true)}
+                            onBlur={() => setIsAmountFocused(false)}
+                            style={[styles.textInput, {borderColor: isAmountFocused? colors.INPUT_HIGHLIGHT_1: colors.INPUT_DISABLED}]}
+                 />
+                 <TextInput value={description}
+                            onChangeText={text => setDescription(text)}
+                            editable={false}
+                            placeholder='Add reason for transfer'
+                            placeholderTextColor={colors.BLACK_2}
+                            autoFocus
+                            onFocus={() => setIsDescriptionFocused(true)}
+                            onBlur={() => setIsDescriptionFocused(false)}
+                            style={[styles.textInput, {borderColor: isDescriptionFocused? colors.INPUT_HIGHLIGHT_1: colors.INPUT_DISABLED}]}
+                 />
+				<PrimaryButton text="Transfer" onPress={onSave} />
 			</View>
 			</>}
 			</KeyboardAvoidingView>
@@ -224,7 +242,7 @@ export default Transfer;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 20,
+        paddingHorizontal: 44,
     },
     scrollContainer: {
         alignItems: 'center',
@@ -237,6 +255,13 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         alignSelf: "center"
     },
+    balanceCardContainer: {
+        // flex: 1,
+        // flexDirection: 'row',
+        width: "100%",
+        justifyContent: 'space-between',
+        marginBottom: 40,
+    },
     signupText: {
         color: 'black',
         fontSize: 18,
@@ -244,13 +269,20 @@ const styles = StyleSheet.create({
         marginBottom: 50,
         alignSelf: "center",
     },
+    inputLabel: {
+        fontSize: 12,
+        fontWeight: 700,
+        color: colors.BLACK_1,
+        textAlign: 'left',
+        marginBottom: 5,
+    },
     textInput: {
-        // width: "90%",
-        borderRadius: 10,
-        height: 45,
-        backgroundColor:'#e5e5e5',
-        marginTop: 20,
-        paddingHorizontal: 15,
+        height: 50,
+        width: '100%',
+        borderRadius: 12,
+        borderWidth: 1.5,
+        paddingHorizontal: 16,
+        marginBottom: 16,
     },
     button: {
         height: 60,

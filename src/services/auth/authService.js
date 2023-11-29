@@ -1,10 +1,56 @@
 import axios from "axios";
 
-export async function newProfile(user, firstName, lastName, email){
+export async function newUser(firstName, lastName, email, password){
+    // eslint-disable-next-line no-useless-catch
+    console.log({firstName, lastName, email, password})
+    try{
+        const res =  await axios.post('https://onos.mudiaga.com.ng/api/register',
+            {firstName, lastName, email, password})
+        //console.log({res})
+        console.log("Data: ", res?.data)
+        return res?.data
+    }
+    catch (e) {
+        throw e
+    }
+}
+
+export async function login(email, password){
+    // eslint-disable-next-line no-useless-catch
+    console.log({email, password})
+    try{
+        const res =  await axios.post('https://onos.mudiaga.com.ng/api/login',
+            {email, password})
+        //console.log({res})
+        console.log("Data: ", res?.data)
+        return res?.data
+    }
+    catch (e) {
+        throw e
+    }
+}
+
+export async function editUser(id, payload){
+    // eslint-disable-next-line no-useless-catch
+    // console.log({firstName, lastName, email, password})
+    try{
+        const res =  await axios.post('https://onos.mudiaga.com.ng/api/edit-user',
+            {id, payload})
+        //console.log({res})
+        console.log("Data: ", res?.data)
+        return res?.data
+    }
+    catch (e) {
+        throw e
+    }
+}
+
+
+export async function newProfile(user, email, address){
     // eslint-disable-next-line no-useless-catch
     try{
-        const res =  await axios.post('https://onos.mudiaga.com.ng/api/profiles/new',
-            {user, firstName, lastName, email})
+        const res =  await axios.post('http://localhost:3040/api/profiles/new',
+            {user, email, address})
         //console.log({res})
         //console.log("Data: ", res?.data)
         return res?.data
@@ -14,11 +60,11 @@ export async function newProfile(user, firstName, lastName, email){
     }
 }
 
-export async function editProfile(user, payload){
+export async function editProfile(email, payload){
     // eslint-disable-next-line no-useless-catch
     try{
         const res =  await axios.post('https://onos.mudiaga.com.ng/api/profiles/edit',
-            {user, payload})
+            {email, payload})
         //console.log({res})
         //console.log("Data: ", res?.data)
         return res?.data
@@ -61,7 +107,7 @@ export async function getUserAccountDetails(username){
     try{
         const res =  await axios.get(`https://onos.mudiaga.com.ng/api/paystack/virtual-account-list`)
         //console.log({res})
-        //console.log("Data: ", res?.data)
+        console.log("Paystack Data: ", res?.data?.data[0])
         let data =  res?.data?.data
         let selectedUser = data?.find(el => el?.customer?.phone === username)
 
@@ -183,8 +229,10 @@ export async function VerifyAccount(bankCode, accountNumber){
     // eslint-disable-next-line no-useless-catch
     try{
         // verify the account details
+        console.log("I am here")
+        console.log({bankCode, accountNumber})
         const res =  await axios.get(`https://onos.mudiaga.com.ng/api/paystack/verify-account/${bankCode}/${accountNumber}`)
-        //console.log({res})
+        console.log({res})
         //console.log("Data: ", res?.data)
         let data =  res?.data
 

@@ -1,0 +1,115 @@
+import React, {useEffect, useRef, useState} from 'react';
+import { Image, StyleSheet, ScrollView, TextInput, Text, View,
+useWindowDimensions, Platform, TouchableOpacity } from 'react-native';
+import OTPTextInput from 'react-native-otp-textinput';
+// import { requestOTP, verifyOTP } from '../../utils/users'
+import { useNavigation, useRoute } from '@react-navigation/native';
+// import NavigationNames from '../../navigation/NavigationNames';
+import { useSelector, useDispatch } from 'react-redux';
+import NavigationNames from "../../navigation/NavigationNames";
+import {verifyOTP} from "../../services/profile/profileService";
+import {setSignIn} from "../../redux/features/auth/authSlice";
+import {getProfile} from "../../services/auth/authService";
+import {updateProfileData, updateProfileStatus} from "../../redux/features/user/userSlice";
+import {colors} from "../../assets/colors";
+import Heading from "../../components/text/Heading";
+import PrimaryButton from "../../components/buttons/PrimaryButton";
+// import { setSignIn } from '../../redux/slices/authSlice';
+// import { storeData } from '../../utils/deviceStorage';
+
+// console.log({useKeyboard})
+
+const EmailVerification = () => {
+    const [checked, setChecked] = React.useState(false);
+    const [value, setValue] = useState("");
+    const [formattedValue, setFormattedValue] = useState("");
+    // const [status, setStatus] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const {height, width} = useWindowDimensions()
+    const navigation = useNavigation();
+    const route = useRoute();
+    const otpInput = useRef(null);
+    const dispatch = useDispatch();
+
+    // const { status } = useSelector(state => state.user)
+    const status = ""
+    // const {username, id, token} = useSelector(state => state.auth);
+
+    const {id, user, email, phone } = route?.params ?? {};
+
+    const handleNext = async () => {
+        navigation.navigate(NavigationNames.Address, {id, user, email, phone})
+    }
+
+    return (
+        <ScrollView contentContainerStyle={styles.scrollContainer} style={styles.container}>
+            <Image source={require('../../assets/email-icon.png')} style={styles.emailIcon} />
+            <Heading text='We have sent an email
+                verification to your email' mb={8} size={26} />
+            <Text style={styles.subText}>
+                Check your email {email} and
+                click the link to verify your email address
+            </Text>
+             <PrimaryButton text="Proceed" mt={50} mb={20} onPress={handleNext} />
+        </ScrollView>
+    );
+};
+
+export default EmailVerification;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingTop: 50,
+        paddingHorizontal: 44,
+    },
+    emailIcon: {
+        width: 248,
+        height: 256,
+    },
+    scrollContainer: {
+        alignItems: 'center',
+        paddingTop: 50,
+    },
+    subText: {
+        fontSize: 16,
+        color: colors.LIGHT_GRAY_1,
+        marginBottom: 40,
+        textAlign: 'center',
+    },
+    didntReceiveText: {
+        fontSize: 15,
+        color: colors.BLACK_2,
+        marginTop: 50.5,
+        marginBottom: 18,
+        textAlign: 'center',
+    },
+    resendCode: {
+        textDecorationLine: 'underline',
+        color: colors.PRIMARY_2,
+        fontSize: 15,
+        fontWeight: 700,
+    },
+    controlContainer: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    controlInput: {
+        height: 55,
+        width: 40,
+        backgroundColor: '#f0f0ef',
+        borderColor: '#e0e0e0',
+        borderRadius: 10,
+        color: 'black',
+        borderWidth: 1,
+    },
+    bottomText: {
+        fontSize: 12,
+        color: colors.LIGHT_GRAY_1,
+        textAlign: 'center'
+    },
+    tc: {
+        color: colors.PRIMARY_2
+    },
+})
