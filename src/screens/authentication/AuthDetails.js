@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     View,
     StyleSheet,
@@ -7,7 +7,8 @@ import {
     TouchableOpacity,
     ScrollView,
     Platform,
-    KeyboardAvoidingView
+    KeyboardAvoidingView, Alert,
+    useWindowDimensions,
 } from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Heading from "../../components/text/Heading";
@@ -17,9 +18,15 @@ import MaterialCommunityIcon from "react-native-paper/src/components/MaterialCom
 import {useNavigation} from "@react-navigation/native";
 import NavigationNames from "../../navigation/NavigationNames";
 import {createCustomerAccountNumber, newUser} from "../../services/auth/authService";
+import {useDispatch, useSelector} from "react-redux";
+import {clearSignupDetails, setSignIn, setSignupDetails} from "../../redux/features/auth/authSlice";
+import Icon from "@expo/vector-icons/MaterialCommunityIcons";
+import {updateProfileData} from "../../redux/features/user/userSlice";
 
 const AuthDetails = () => {
     const navigation = useNavigation()
+    const dispatch = useDispatch()
+    const {width,height} = useWindowDimensions()
 
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
@@ -35,31 +42,59 @@ const AuthDetails = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [loading, setLoading] = useState(false)
 
+    const { signupDetails } = useSelector(state => state.auth)
+    console.log({signupDetails})
+
+    useEffect(() => {
+        setUsername(signupDetails?.firstName === undefined ? "":signupDetails?.firstName  + " " + signupDetails?.lastName === undefined ? "":signupDetails?.lastName )
+        setEmailAddress(signupDetails?.email?.toString())
+        setPassword(signupDetails?.password?.toString())
+        setConfirmPassword(signupDetails?.password?.toString())
+    }, [signupDetails]);
+
     const handleLoginClicked = () => {
 
     }
 
     const handleNextClicked = async () => {
-        // navigation.navigate(NavigationNames.PhoneSignup)
+        try{
+            // navigation.navigate(NavigationNames.PhoneSignup)
 
-        // uncomment this code to apply the actual logic
-        setLoading(true)
-        let names = username?.trim().split(" ")
-        console.log({names})
-        let firstName = names[0]
-        let lastName = names[names?.length - 1]
-        let middleName = ""
-        if (names?.length > 2) middleName = names[1]
-        let result= await newUser(firstName,lastName,email,password)
-        const response2 = await createCustomerAccountNumber(email, firstName, firstName, lastName, "", "22198507235")
+            // uncomment this code to apply the actual logic
+            setLoading(true)
+            let names = username?.trim().split(" ")
+            console.log({names})
+            let firstName = names[0]
+            let lastName = names[names?.length - 1] ?? ""
+            let middleName = ""
+            if (names?.length > 2) middleName = names[1]
 
-        console.log({response2})
-        // console.log({result})
-        // if (result?.loginToken){
-        //     navigation.navigate(NavigationNames.PhoneSignup,{id: result?._id, user: result, email: result?.email})
-        // }
+            dispatch(setSignupDetails({
+                firstName, lastName, email, password, confirmPassword: password
+            }))
 
-        setLoading(false)
+            const response2 = await createCustomerAccountNumber(email, "", firstName, lastName, middleName, signupDetails?.bvn)
+            let result= await newUser(firstName,lastName,email,password)
+
+
+            console.log({response2})
+            console.log({result})
+            if (result?.loginToken){
+                dispatch(clearSignupDetails())
+                dispatch(updateProfileData({
+                    email, firstName, lastName, otherNames: middleName,
+                }))
+                dispatch(setSignIn(result))
+                // dispatch(setSignupDetails({phone: }))
+                navigation.navigate(NavigationNames.PhoneSignup,{id: result?._id, user: result, email: result?.email})
+            }
+        }
+        catch (err) {
+            Alert.alert("Charis",`Error creating account: \n ${err?.toString()}`)
+        }
+        finally {
+            setLoading(false)
+        }
 
     }
 
@@ -69,7 +104,14 @@ const AuthDetails = () => {
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardView} enabled>
-            <Heading text='Sign Up' mb={5} />
+                <View style={[styles.headerContainer]}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Icon name='arrow-left' size={30} color={colors.PRIMARY} />
+                    </TouchableOpacity>
+
+                    <Heading text='Sign Up' mb={5} style={{width: width - 118, textAlign: 'center',}} />
+                </View>
+
             <Text style={styles.ifCorrectText}>Create an account to get started</Text>
             <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>Full Name</Text>
@@ -207,6 +249,10 @@ const styles = StyleSheet.create({
         fontWeight: 600,
         textDecorationLine: 'underline',
     },
+    headerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    }
 })
 
 export default AuthDetails;

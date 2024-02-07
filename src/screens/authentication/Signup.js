@@ -1,16 +1,25 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, Text, TextInput} from "react-native";
 import Heading from "../../components/text/Heading";
 import {colors} from "../../assets/colors";
 import PrimaryButton from "../../components/buttons/PrimaryButton";
 import {useNavigation} from "@react-navigation/native";
 import NavigationNames from "../../navigation/NavigationNames";
+import {useDispatch, useSelector} from "react-redux";
+import {setSignupDetails} from "../../redux/features/auth/authSlice";
 
 const Signup = () => {
     const navigation = useNavigation();
+    const dispatch = useDispatch();
+
+    const {signupDetails} = useSelector(state => state.auth)
 
     const [bvn, setBvn] = useState('')
     const [isBvnFocused, setIsBvnFocused] = useState(true)
+
+    useEffect(() => {
+        setBvn(signupDetails?.bvn)
+    }, [signupDetails]);
 
     const onChangeBvn = (val) => {
         setBvn(val)
@@ -21,7 +30,10 @@ const Signup = () => {
     }
 
     const handleContinueClicked = () => {
-        navigation.navigate(NavigationNames.BVNDetails)
+        dispatch(setSignupDetails({
+            bvn
+        }))
+        navigation.navigate(NavigationNames.AuthDetails)
     }
 
     return (

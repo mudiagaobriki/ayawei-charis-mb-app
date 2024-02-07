@@ -1,9 +1,10 @@
 import axios from "axios";
+import {API_URL} from "../../assets/constants";
 
 export async function sendOTP(phoneNumber){
     // eslint-disable-next-line no-useless-catch
     try{
-        const res =  await axios.post('https://onos.mudiaga.com.ng/api/send-otp', {phoneNumber})
+        const res =  await axios.post(`${API_URL}/api/send-otp`, {phoneNumber})
         //console.log({res})
         //console.log("Data: ", res?.data)
         return res?.data
@@ -17,7 +18,7 @@ export async function sendOTP(phoneNumber){
 export function verifyOTP(phoneNumber, otp){
     // alert("Phone Number: ", phoneNumber)
     // alert(`otp: ${otp}`)
-    return axios.post('https://onos.mudiaga.com.ng/api/verify-otp', {phoneNumber, otp}).then((res) => {
+    return axios.post(`${API_URL}/api/verify-otp`, {phoneNumber, otp}).then((res) => {
         //console.log("Sign In success")
         return res;
     }).catch((err) => {
@@ -27,7 +28,7 @@ export function verifyOTP(phoneNumber, otp){
 }
 
 export function updatePin(id, payload){
-    return axios.post('https://onos.mudiaga.com.ng/api/edit-user', {id, payload}).then((res) => {
+    return axios.post(`${API_URL}/api/edit-user`, {id, payload}).then((res) => {
         //console.log("Sign In success")
         return res.data;
     }).catch((err) => {
@@ -39,7 +40,7 @@ export async function signUpLearner(payload){
     // eslint-disable-next-line no-useless-catch
     try{
         const res =  await axios.post('https://elelohe.dominioncityph.cc/api/learners/new', payload)
-        // const res =  await axios.post('https://onos.mudiaga.com.ng/api/learners/new', payload)
+        // const res =  await axios.post('${API_URL}/api/learners/new', payload)
         // //console.log({res})
         // //console.log("Data: ", res?.data)
         // //console.log("error: ", {res})

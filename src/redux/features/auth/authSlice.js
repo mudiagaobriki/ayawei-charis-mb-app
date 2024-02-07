@@ -5,6 +5,14 @@ const initialState = {
     username: null,
     id: null,
     token: null,
+    signupDetails: {
+        bvn: "",
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+    }
 }
 
 const authSlice = createSlice({
@@ -25,10 +33,19 @@ const authSlice = createSlice({
             state.isLoggedIn = false;
             state.token = null;
         },
+        setSignupDetails: (state, action) => {
+            state.signupDetails = {
+                ...state.signupDetails, ...action.payload
+            }
+        },
+        clearSignupDetails: (state) => {
+            state.signupDetails = {}
+        }
     }
 });
 
-export const { setSignIn, setSignOut } = authSlice.actions;
+export const { setSignIn, setSignOut,
+    setSignupDetails, clearSignupDetails } = authSlice.actions;
 
 export const selectIsLoggedIn = (state) => state.auth.isLoggedIn;
 // export const selectEmail = (state) => state.userAuth.email;

@@ -49,9 +49,9 @@ const userSlice = createSlice({
     updateProfileStatus: (state, action) => {
       state.status = action.payload;
     },
-    updateProfileData: (state, { payload }) => {
+    updateProfileData: (state, action ) => {
       state.profileData = {
-        ...state.profileData, ...payload
+        ...state.profileData, ...action.payload
       }
     }
   },

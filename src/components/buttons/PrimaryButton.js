@@ -1,5 +1,5 @@
 import React from 'react';
-import {ImageBackground, Text, TouchableOpacity, StyleSheet} from "react-native";
+import {ImageBackground, Text, TouchableOpacity, StyleSheet, ActivityIndicator} from "react-native";
 
 const PrimaryButton = ({onPress, text, loading=false, width='100%', height=55, br=10, mt=0, mb=0,  textSize=17, textWeight = 700}) => {
     const styles = {
@@ -29,11 +29,13 @@ const PrimaryButton = ({onPress, text, loading=false, width='100%', height=55, b
 
 
     return (
-        <TouchableOpacity style={styles.mainButton} onPress={onPress}>
+        <TouchableOpacity style={styles.mainButton} onPress={onPress} disabled={loading}>
             <ImageBackground source={require('../../assets/button-bg.png')}
                              style={styles.buttonBackground}
                              imageStyle={styles.backgroundImgStyle}>
-                <Text style={styles.buttonText}>{loading? "Busy" : text}</Text>
+                <Text style={styles.buttonText}>{loading?
+                    <ActivityIndicator color='#ffffff' size='large' /> :
+                    text}</Text>
             </ImageBackground>
         </TouchableOpacity>
     );

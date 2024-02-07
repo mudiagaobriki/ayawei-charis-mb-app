@@ -1,6 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { Image, StyleSheet, ScrollView, TextInput, Text, View,
-useWindowDimensions, Platform, TouchableOpacity } from 'react-native';
+import {
+    Image, StyleSheet, ScrollView, TextInput, Text, View,
+    useWindowDimensions, Platform, TouchableOpacity, Alert
+} from 'react-native';
 import OTPTextInput from 'react-native-otp-textinput';
 // import { requestOTP, verifyOTP } from '../../utils/users'
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -9,7 +11,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import NavigationNames from "../../navigation/NavigationNames";
 import {verifyOTP} from "../../services/profile/profileService";
 import {setSignIn} from "../../redux/features/auth/authSlice";
-import {getProfile} from "../../services/auth/authService";
+import {getProfile, sendEmailOTP, verifyEmailOTP} from "../../services/auth/authService";
 import {updateProfileData, updateProfileStatus} from "../../redux/features/user/userSlice";
 import {colors} from "../../assets/colors";
 import Heading from "../../components/text/Heading";
@@ -35,11 +37,26 @@ const EmailOTPConfirmation = () => {
     // const { status } = useSelector(state => state.user)
     const status = ""
     // const {username,} = useSelector(state => state.auth);
+    const {profileData} = useSelector(state => state.user)
+    // const {}
 
-    const {id, user, email, phone } = route?.params ?? {};
+    const {email, phoneNumber } = profileData ?? {};
+
+    const verifyOTP = async (email,otp) => {
+        const res = await verifyEmailOTP(email, otp)
+
+        if (res.valid){
+            navigation.navigate(NavigationNames.PhoneOTPConfirmation)
+        }
+        else{
+            Alert.alert('Charis','Invalid OTP code entered. Please try again')
+        }
+    }
 
     const handleNext = async () => {
-        navigation.navigate(NavigationNames.PhoneOTPConfirmation, {id, user, email, phone})
+        setLoading(true)
+        await verifyOTP(email, value)
+        setLoading(false)
     }
 
     return (
@@ -47,7 +64,7 @@ const EmailOTPConfirmation = () => {
             <Heading text='Enter confirmation code' mb={13} size={26} />
             <Text style={styles.subText}>
                 A 4-digit code was sent to
-                {user?.email}
+                 &nbsp;{email}
             </Text>
              <OTPTextInput
                 ref={otpInput}
@@ -64,7 +81,7 @@ const EmailOTPConfirmation = () => {
                 Didn’t n received the code?
             </Text>
             <Text style={styles.resendCode}>Resend Code</Text>
-             <PrimaryButton text="Proceed" mt={130} mb={20} onPress={handleNext} />
+             <PrimaryButton text="Proceed" mt={130} mb={20} onPress={handleNext} loading={loading} />
             <Text style={styles.bottomText}>
                 By clicking Proceed, you agree with the
                 <Text style={styles.tc}>Terms and Conditions</Text> and

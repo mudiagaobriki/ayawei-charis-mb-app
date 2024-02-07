@@ -1,10 +1,12 @@
 import axios from "axios";
+import {API_URL} from "../../assets/constants";
 
 export async function newUser(firstName, lastName, email, password){
     // eslint-disable-next-line no-useless-catch
     console.log({firstName, lastName, email, password})
+    console.log("url: ", `${API_URL}/register`)
     try{
-        const res =  await axios.post('https://onos.mudiaga.com.ng/api/register',
+        const res =  await axios.post(`${API_URL}/register`,
             {firstName, lastName, email, password})
         //console.log({res})
         console.log("Data: ", res?.data)
@@ -19,7 +21,7 @@ export async function login(email, password){
     // eslint-disable-next-line no-useless-catch
     console.log({email, password})
     try{
-        const res =  await axios.post('https://onos.mudiaga.com.ng/api/login',
+        const res =  await axios.post(`${API_URL}/login`,
             {email, password})
         //console.log({res})
         console.log("Data: ", res?.data)
@@ -34,8 +36,22 @@ export async function editUser(id, payload){
     // eslint-disable-next-line no-useless-catch
     // console.log({firstName, lastName, email, password})
     try{
-        const res =  await axios.post('https://onos.mudiaga.com.ng/api/edit-user',
+        const res =  await axios.post(`${API_URL}/edit-user`,
             {id, payload})
+        //console.log({res})
+        console.log("Data: ", res?.data)
+        return res?.data
+    }
+    catch (e) {
+        throw e
+    }
+}
+
+export async function getUserDetails(email){
+    // eslint-disable-next-line no-useless-catch
+    // console.log({firstName, lastName, email, password})
+    try{
+        const res =  await axios.get(`${API_URL}/user/${email}`)
         //console.log({res})
         console.log("Data: ", res?.data)
         return res?.data
@@ -49,8 +65,36 @@ export async function editUser(id, payload){
 export async function newProfile(user, email, address){
     // eslint-disable-next-line no-useless-catch
     try{
-        const res =  await axios.post('http://localhost:3040/api/profiles/new',
+        const res =  await axios.post(`${API_URL}/profiles/new`,
             {user, email, address})
+        //console.log({res})
+        //console.log("Data: ", res?.data)
+        return res?.data
+    }
+    catch (e) {
+        throw e
+    }
+}
+
+export async function sendEmailOTP(email){
+    // eslint-disable-next-line no-useless-catch
+    try{
+        const res =  await axios.post(`${API_URL}/send-email-otp`,
+            {email})
+        //console.log({res})
+        //console.log("Data: ", res?.data)
+        return res?.data
+    }
+    catch (e) {
+        throw e
+    }
+}
+
+export async function verifyEmailOTP(email,otp){
+    // eslint-disable-next-line no-useless-catch
+    try{
+        const res =  await axios.post(`${API_URL}/verify-email-otp`,
+            {email,otp})
         //console.log({res})
         //console.log("Data: ", res?.data)
         return res?.data
@@ -63,7 +107,7 @@ export async function newProfile(user, email, address){
 export async function editProfile(email, payload){
     // eslint-disable-next-line no-useless-catch
     try{
-        const res =  await axios.post('https://onos.mudiaga.com.ng/api/profiles/edit',
+        const res =  await axios.post(`${API_URL}/profiles/edit`,
             {email, payload})
         //console.log({res})
         //console.log("Data: ", res?.data)
@@ -77,7 +121,7 @@ export async function editProfile(email, payload){
 export async function createCustomerAccountNumber(email, phone, first_name, last_name, middle_name, bvn){
     // eslint-disable-next-line no-useless-catch
     try{
-        const res =  await axios.post('https://onos.mudiaga.com.ng/api/paystack/customer-and-virtual-account',
+        const res =  await axios.post(`${API_URL}/paystack/customer-and-virtual-account`,
             {email, phone, first_name, last_name, middle_name, bvn})
         //console.log({res})
         //console.log("Data: ", res?.data)
@@ -92,7 +136,7 @@ export async function getProfile(user){
     console.log("User received: ", {user})
     // eslint-disable-next-line no-useless-catch
     try{
-        const res =  await axios.get(`https://onos.mudiaga.com.ng/api/profiles/details/${user}`)
+        const res =  await axios.get(`${API_URL}/profiles/details/${user}`)
         //console.log({res})
         console.log("In user profile function: ", res?.data)
         return res?.data?.data
@@ -105,7 +149,7 @@ export async function getProfile(user){
 export async function getUserAccountDetails(username){
     // eslint-disable-next-line no-useless-catch
     try{
-        const res =  await axios.get(`https://onos.mudiaga.com.ng/api/paystack/virtual-account-list`)
+        const res =  await axios.get(`${API_URL}/paystack/virtual-account-list`)
         //console.log({res})
         console.log("Paystack Data: ", res?.data?.data[0])
         let data =  res?.data?.data
@@ -121,7 +165,7 @@ export async function getUserAccountDetails(username){
 export async function getUserTransactions(username){
     // eslint-disable-next-line no-useless-catch
     try{
-        const res =  await axios.get(`https://onos.mudiaga.com.ng/api/paystack/all-transactions`)
+        const res =  await axios.get(`${API_URL}/paystack/all-transactions`)
         //console.log({res})
         //console.log("Data: ", res?.data)
         let data =  res?.data?.data
@@ -139,7 +183,7 @@ export async function getUserTransactionsAndTransfers(username){
     try{
         const output = []
 
-        const res =  await axios.get(`https://onos.mudiaga.com.ng/api/paystack/all-transactions`)
+        const res =  await axios.get(`${API_URL}/paystack/all-transactions`)
         //console.log({res})
         //console.log("Data: ", res?.data)
         let data =  res?.data?.data
@@ -156,7 +200,7 @@ export async function getUserTransactionsAndTransfers(username){
             })
         })
 
-        let transfers =  await axios.get(`https://onos.mudiaga.com.ng/api/paystack/list-transfers`)
+        let transfers =  await axios.get(`${API_URL}/paystack/list-transfers`)
 
         transfers = transfers?.data?.data;
 
@@ -187,7 +231,7 @@ export async function getUserTransactionsAndTransfers(username){
 export async function getUserBalance(username, accountNumber){
     // eslint-disable-next-line no-useless-catch
     try{
-        const res =  await axios.get(`https://onos.mudiaga.com.ng/api/paystack/all-transactions`)
+        const res =  await axios.get(`${API_URL}/paystack/all-transactions`)
         //console.log({res})
         console.log("All Transactions : ", res?.data)
         let data =  res?.data?.data
@@ -203,7 +247,7 @@ export async function getUserBalance(username, accountNumber){
         //console.log({totalInflows})
 
         // get transfers
-        let transfers =  await axios.get(`https://onos.mudiaga.com.ng/api/paystack/list-transfers`)
+        let transfers =  await axios.get(`${API_URL}/paystack/list-transfers`)
 
         transfers = transfers?.data?.data;
 
@@ -231,7 +275,7 @@ export async function VerifyAccount(bankCode, accountNumber){
         // verify the account details
         console.log("I am here")
         console.log({bankCode, accountNumber})
-        const res =  await axios.get(`https://onos.mudiaga.com.ng/api/paystack/verify-account/${bankCode}/${accountNumber}`)
+        const res =  await axios.get(`${API_URL}/paystack/verify-account/${bankCode}/${accountNumber}`)
         console.log({res})
         //console.log("Data: ", res?.data)
         let data =  res?.data
@@ -246,7 +290,7 @@ export async function VerifyAccount(bankCode, accountNumber){
 export async function getBankList(){
     // eslint-disable-next-line no-useless-catch
     try{
-        const res =  await axios.get(`https://onos.mudiaga.com.ng/api/paystack/banks-list`)
+        const res =  await axios.get(`${API_URL}/paystack/banks-list`)
         //console.log({res})
         //console.log("Data: ", res?.data)
         let data =  res?.data?.data
@@ -262,7 +306,7 @@ export async function TransferMoney(bankCode, accountNumber, accountName, amount
     // eslint-disable-next-line no-useless-catch
     try{
         // check if the receiver is a recipient
-        const res =  await axios.get(`https://onos.mudiaga.com.ng/api/paystack/transfer-recipients-list`)
+        const res =  await axios.get(`${API_URL}/paystack/transfer-recipients-list`)
         //console.log({res})
         //console.log("All Accounts: ", res?.data?.data)
         let receiver = null
@@ -272,7 +316,7 @@ export async function TransferMoney(bankCode, accountNumber, accountName, amount
 
         // if no recipient with those details, create one
         if (!recipientExists){
-            const recipient =  await axios.post(`https://onos.mudiaga.com.ng/api/paystack/create-transfer-recipient`,
+            const recipient =  await axios.post(`${API_URL}/paystack/create-transfer-recipient`,
                 {name: accountName, account_number: accountNumber, bank_code: bankCode })
             //console.log({recipient})
             //console.log("New Recipient: ", recipient)
@@ -282,7 +326,7 @@ export async function TransferMoney(bankCode, accountNumber, accountName, amount
         //console.log({receiver})
 
         // initiate the transfer
-        const transferInitiated =  await axios.post(`https://onos.mudiaga.com.ng/api/paystack/initiate-transfer`,
+        const transferInitiated =  await axios.post(`${API_URL}/paystack/initiate-transfer`,
             {reason, amount: Number(amount)*100, recipient: receiver?.recipient_code })
 
         //console.log("Message: ",transferInitiated?.data)
@@ -433,7 +477,7 @@ export async function initiateBillPayment(service_id, account_number, vendor_id,
 }
 
 // export function verifyOTP(phoneNumber, otp){
-//     return axios.post('https://onos.mudiaga.com.ng/api/verify-otp', {phoneNumber, otp}).then((res) => {
+//     return axios.post('http://192.168.166.154/api/verify-otp', {phoneNumber, otp}).then((res) => {
 //         //console.log("Sign In success")
 //         return res.data;
 //     }).catch((err) => {
@@ -442,7 +486,7 @@ export async function initiateBillPayment(service_id, account_number, vendor_id,
 // }
 //
 // export function updatePin(id, payload){
-//     return axios.post('https://onos.mudiaga.com.ng/api/edit-user', {id, payload}).then((res) => {
+//     return axios.post('http://192.168.166.154/api/edit-user', {id, payload}).then((res) => {
 //         //console.log("Sign In success")
 //         return res.data;
 //     }).catch((err) => {
@@ -454,7 +498,7 @@ export async function initiateBillPayment(service_id, account_number, vendor_id,
 //     // eslint-disable-next-line no-useless-catch
 //     try{
 //         const res =  await axios.post('https://elelohe.dominioncityph.cc/api/learners/new', payload)
-//         // const res =  await axios.post('https://onos.mudiaga.com.ng/api/learners/new', payload)
+//         // const res =  await axios.post('http://192.168.166.154/api/learners/new', payload)
 //         // //console.log({res})
 //         // //console.log("Data: ", res?.data)
 //         // //console.log("error: ", {res})

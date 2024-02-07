@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     View,
     StyleSheet,
@@ -7,7 +7,7 @@ import {
     TouchableOpacity,
     ScrollView,
     Platform,
-    KeyboardAvoidingView
+    KeyboardAvoidingView, Alert
 } from "react-native";
 import Heading from "../../components/text/Heading";
 import {colors} from "../../assets/colors";
@@ -17,7 +17,9 @@ import {useNavigation, useRoute} from "@react-navigation/native";
 import NavigationNames from "../../navigation/NavigationNames";
 import DropDownPicker from "react-native-dropdown-picker";
 import COUNTRY_STATES_CITY from '../../assets/data/countries-states-cities.json'
-import {editProfile} from "../../services/auth/authService";
+import {editProfile, editUser, getUserDetails} from "../../services/auth/authService";
+import {useSelector} from "react-redux";
+// import {setupListeners} from "@reduxjs/toolkit/query";
 
 // limit to Nigeria for now
 const NIGERIA_DATA =  COUNTRY_STATES_CITY.find(el => el.name === 'Nigeria')
@@ -41,10 +43,33 @@ const Address = () => {
     const [isCityFocused, setIsCityFocused] = useState(false)
     const [isHouseNumberFocused, setIsHouseNumberFocused] = useState(false)
     const [isStreetNameFocused, setIsStreetNameFocused] = useState(false)
+    const [user, setUser] = useState({})
+    const [loading, setLoading] = useState(false)
 
     const route = useRoute();
+    const {profileData} = useSelector(state => state.user)
+    // const {}
 
-    const {id, user, email, phone } = route?.params ?? {};
+    const {email, phone: phoneNumber } = profileData ?? {};
+
+    // const {id, user, email, phone } = route?.params ?? {};
+
+    const getUser = () => {
+        getUserDetails(email)
+            .then(res => {
+                if (res.status === "success"){
+                    console.log(res?.data)
+                    setUser(res?.data)
+                }
+            })
+            .catch(err => {
+                Alert.alert("Charis", `Error: ${err?.toString()}`)
+            })
+    }
+
+    useEffect(() => {
+        getUser()
+    }, []);
 
     const getCitiesInState = (stateCode) => {
         const selectedState = NIGERIA_STATES?.find(el =>el?.state_code === stateCode);
@@ -52,18 +77,22 @@ const Address = () => {
     }
 
     const handleNextClicked = async () => {
+        setLoading(true)
         // navigation.navigate(NavigationNames.TakeASelfie)
 
         // uncomment this code to apply the actual logic
         const address = houseNumber + " " + streetName
 
         let result = await editProfile(email, {username, address, state: addressState, city})
+        let result2 = await editUser(user['_id'], {username});
 
         console.log({result})
 
-        if (result?.status === "success"){
-            navigation.navigate(NavigationNames.TakeASelfie, {phone})
+        if (result?.status === "success" && result2?.status === "success"){
+            navigation.navigate(NavigationNames.TakeASelfie)
         }
+
+        setLoading(false)
     }
 
 
@@ -194,7 +223,7 @@ const Address = () => {
                                style={[styles.textInput, {borderColor: isStreetNameFocused? colors.INPUT_HIGHLIGHT_1: colors.INPUT_DISABLED}]}
                     />
                 </View>
-                <PrimaryButton text="Next" onPress={handleNextClicked} mt={37} mb={50} />
+                <PrimaryButton text="Next" onPress={handleNextClicked} mt={37} mb={50} loading={loading} />
             </KeyboardAvoidingView>
             <View style={{height: 300}}></View>
         </ScrollView>

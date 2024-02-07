@@ -78,7 +78,7 @@ const Signin = () => {
             </View>
             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             <Text style={styles.signupText}>Don’t have an account? -
-                <Text style={styles.signupText2}> Sign Up</Text>
+                <Text style={styles.signupText2} onPress={() => navigation.navigate(NavigationNames.Signup)}> Sign Up</Text>
             </Text>
             <PrimaryButton text="Sign In" onPress={handleContinueClicked} mb={18} />
         </View>

@@ -17,11 +17,13 @@ import PrimaryButton from "../../components/buttons/PrimaryButton";
 // import { setSignIn } from '../../redux/slices/authSlice';
 // import { storeData } from '../../utils/deviceStorage';
 import * as ImagePicker from 'expo-image-picker';
+import uploadToFirebase, {listFiles} from "../../helperFunctions/firebaseFunctions";
 
 // console.log({useKeyboard})
 
 const TakeASelfie = () => {
     const [image, setImage] = useState(null);
+    const [files, setFiles] = useState(null);
 
     const {height, width} = useWindowDimensions()
     const navigation = useNavigation();
@@ -62,11 +64,15 @@ const TakeASelfie = () => {
         const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
         if (permissionResult.granted === false) {
-            alert("You've refused to allow this appp to access your camera!");
+            alert("You've refused to allow this app to access your camera!");
             return;
         }
 
-        const result = await ImagePicker.launchCameraAsync();
+        const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            quality: 1,
+        });
 
         // Explore the result
         console.log(result);
@@ -74,6 +80,19 @@ const TakeASelfie = () => {
         if (!result.cancelled) {
             setImage(result.uri);
             console.log(result.uri);
+            // const fileName = result.uri.split("/").pop();
+            // const uploadResp = await uploadToFirebase(result.uri, fileName, (v) =>
+            //     console.log(v)
+            // );
+            // console.log(uploadResp);
+            //
+            // listFiles().then((listResp) => {
+            //     const files = listResp.map((value) => {
+            //         return { name: value.fullPath };
+            //     });
+            //
+            //     setFiles(files);
+            // });
             navigation.navigate(NavigationNames.SelfieTaken,{image: result.uri, phone})
         }
     }

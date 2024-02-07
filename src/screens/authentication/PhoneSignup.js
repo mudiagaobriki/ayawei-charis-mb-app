@@ -7,14 +7,14 @@ import Icon from '@expo/vector-icons/MaterialCommunityIcons';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import NavigationNames from "../../navigation/NavigationNames";
 import {sendOTP} from "../../services/profile/profileService";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {
     updateProfileData,
     updateProfileStatus,
     updateSplashShown,
     updateUsername
 } from "../../redux/features/user/userSlice";
-import {editProfile, editUser, getProfile} from "../../services/auth/authService";
+import {editProfile, editUser, getProfile, sendEmailOTP} from "../../services/auth/authService";
 import {setSignIn} from "../../redux/features/auth/authSlice";
 // import NavigationNames from '../../navigation/NavigationNames';
 // import { addPerson, fetchPerson, requestOTP, verifyOTP, doUserSignUp } from '../../utils/users'
@@ -38,10 +38,31 @@ const PhoneSignup = () => {
 
     const {id, user, email, } = route?.params ?? {};
 
+    const {profileData} = useSelector(state => state.user)
+    console.log({profileData})
+
 
     useEffect(() => {
         dispatch(updateSplashShown(true))
     },[])
+
+    useEffect(() => {
+
+    })
+
+    const sendUserOTP = () => {
+        sendEmailOTP(email)
+            .then(res => {
+                console.log({res})
+                if (res.status === 'success'){
+                    navigation.navigate(NavigationNames.EmailOTPConfirmation)
+                }
+
+            })
+            .catch(err => {
+                Alert.alert("Charis", `Error sending OTP to email: ${err?.toString()}`)
+            })
+    }
 
     const handleNext = async () => {
         // navigation.navigate(NavigationNames.EmailOTPConfirmation)
@@ -63,7 +84,8 @@ const PhoneSignup = () => {
         // let result2 = await editProfile(email, {accountNumber: formattedValue})
 
         if (result?.status === "success"){
-            navigation.navigate(NavigationNames.EmailOTPConfirmation, {id, user, email, phone: formattedValue})
+            dispatch(updateProfileData({phoneNumber: fullNumber}))
+            sendUserOTP()
         }
 
         setLoading(false)
@@ -105,7 +127,7 @@ const PhoneSignup = () => {
                 textInputProps={{ maxLength: 12, selectionColor: '#000000' }}
             />
 
-            <PrimaryButton text='Send Code' mt={97} onPress={handleNext} />
+            <PrimaryButton text='Send Code' mt={97} onPress={handleNext} loading={loading} />
 
         </ScrollView>
     );

@@ -35,13 +35,17 @@ const PhoneOTPConfirmation = () => {
     // const { status } = useSelector(state => state.user)
     const status = ""
     // const {username, id, token} = useSelector(state => state.auth);
+    const {profileData} = useSelector(state => state.user)
+    // const {}
 
-    const {id, user, email, phone } = route?.params ?? {};
+    const {email, phoneNumber } = profileData ?? {};
 
-    console.log({user})
+    // const {id, user, email, phone } = route?.params ?? {};
+
+    // console.log({user})
 
     const handleNext = async () => {
-        navigation.navigate(NavigationNames.EmailVerification, {id, user, email, phone})
+        navigation.navigate(NavigationNames.Address)
     }
 
     return (
@@ -49,7 +53,7 @@ const PhoneOTPConfirmation = () => {
             <Heading text='Enter confirmation code' mb={13} size={26} />
             <Text style={styles.subText}>
                 A 4-digit code was sent to {'\n'}
-                0{phone}.
+                {phoneNumber}.
             </Text>
              <OTPTextInput
                 ref={otpInput}
